@@ -1,5 +1,6 @@
 const express = require('express');
 const articlesModel = require('../articles/article-model');
+const categoryModel = require('../categories/category-model');
 const crypto = require("crypto");
 const slugify = require("slugify");
 const router = express.Router();
@@ -50,7 +51,10 @@ router.post('/articles/edit/:id', (req, res) => {
 router.get('/articles/:id', (req, res) => {
     const id = req.params.id;
     if(id) {
-        articlesModel.findByPk(id).then(article => {
+        articlesModel.findByPk(id, {
+            include: [{
+                model: categoryModel
+            }]}).then(article => {
             if(article) {
                 res.json(article);
             }
@@ -59,7 +63,11 @@ router.get('/articles/:id', (req, res) => {
 });
 
 router.get('/articles', (req, res) => {
-    articlesModel.findAll().then(articles => {
+    articlesModel.findAll({
+            include: [{
+                model: categoryModel
+            }]
+    }).then(articles => {
         res.json(articles);
     }).catch(err => console.error('Error in get all article', err));
 });
