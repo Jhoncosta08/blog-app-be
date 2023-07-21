@@ -18,7 +18,11 @@ router.post('/articles/new', (req, res) => {
             slug: slugify(title),
             categoryId: categoryId
         }).then(response => {
-            res.json(response);
+            if(response) {
+                res.json(response);
+            }else {
+                res.status(400);
+            }
         }).catch(err => console.error('Error in create article', err));
     }
 });
@@ -29,7 +33,11 @@ router.delete('/articles/delete/:id', (req, res) => {
         articlesModel.destroy({
             where: {id: id}
         }).then((response) => {
-            res.json(response);
+            if(response) {
+                res.json(response);
+            }else {
+                res.status(400);
+            }
         }).catch(err => console.error('Error in delete article', err));
     }
 });
@@ -43,12 +51,16 @@ router.post('/articles/edit/:id', (req, res) => {
         articlesModel.update(
             {title: title, slug: slugify(title), body: body, categoryId: categoryId}, {where: {id: id}}
         ).then(response => {
-            res.json(response);
+            if(response) {
+                res.json(response);
+            }else {
+                res.status(400);
+            }
         }).catch(err => console.error('Error in update article', err));
     }
 });
 
-router.get('/articles/:id', (req, res) => {
+router.get('/articles/id/:id', (req, res) => {
     const id = req.params.id;
     if(id) {
         articlesModel.findByPk(id, {
@@ -57,6 +69,8 @@ router.get('/articles/:id', (req, res) => {
             }]}).then(article => {
             if(article) {
                 res.json(article);
+            }else {
+                res.status(400);
             }
         }).catch(err => console.error('Error in find article', err));
     }
@@ -68,7 +82,11 @@ router.get('/articles', (req, res) => {
                 model: categoryModel
             }]
     }).then(articles => {
-        res.json(articles);
+        if(articles) {
+            res.json(articles);
+        }else {
+            res.status(400);
+        }
     }).catch(err => console.error('Error in get all article', err));
 });
 

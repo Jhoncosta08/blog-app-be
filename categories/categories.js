@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const categoryModel = require('./category-model');
+const articlesModel = require('../articles/article-model');
 const crypto = require('crypto');
 const slugify = require('slugify');
 
@@ -12,7 +13,11 @@ router.post('/categories/new', (req, res) => {
             title: reqBodyTitle,
             slug: slugify(reqBodyTitle)
         }).then(response => {
-            res.json(response);
+            if(response) {
+                res.json(response);
+            }else {
+                res.status(400);
+            }
         }).catch(err => console.error('Error in create categoy', err));
     }
 });
@@ -22,8 +27,12 @@ router.delete('/categories/delete/:id', (req, res) => {
    if(id) {
        categoryModel.destroy({
            where: {id: id}
-       }).then((response) => {
-           res.json(response);
+       }).then(response => {
+           if(response) {
+               res.json(response);
+           }else {
+               res.status(400);
+           }
        }).catch(err => console.error('Error in delete category', err));
    }
 });
@@ -35,25 +44,51 @@ router.post('/categories/edit/:id', (req, res) => {
        categoryModel.update(
            {title: title, slug: slugify(title)}, {where: {id: id}}
        ).then(response => {
-           res.json(response);
+           if(response) {
+               res.json(response);
+           }else {
+               res.status(400);
+           }
        }).catch(err => console.error('Error in update category', err));
    }
 });
 
-router.get('/categories/:id', (req, res) => {
+router.get('/categories/id/:id', (req, res) => {
    const id = req.params.id;
    if(id) {
        categoryModel.findByPk(id).then(category => {
            if(category) {
                res.json(category);
+           }else {
+               res.status(400);
            }
        }).catch(err => console.error('Error in find category', err));
    }
 });
 
+router.get('/categories/slug/:slug', (req, res) => {
+   const slug = req.params.slug;
+   if(slug) {
+       categoryModel.findOne({
+           where: {slug: slug},
+           include: [{model: articlesModel}]
+       }).then(category => {
+           if(category) {
+               res.json(category);
+           }else {
+               res.status(400);
+           }
+       }).catch(err => console.error('error in get category', err));
+   }
+});
+
 router.get('/categories', (req, res) => {
     categoryModel.findAll().then(categories => {
-        res.json(categories);
+        if(categories) {
+            res.json(categories);
+        }else {
+            res.status(400);
+        }
     }).catch(err => console.error('Error in get all categories', err));
 });
 
